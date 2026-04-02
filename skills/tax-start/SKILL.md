@@ -19,10 +19,10 @@ Work through these sections **one at a time**. Ask only a few questions per turn
 
 ### Section 1: Personal Information
 - Full legal name
-- Social Security Number (last 4 only for safety — note: remind user we store this locally only)
+- Social Security Number (last 4 only for safety — remind user we store locally only)
 - Date of birth
 - Filing status: Single, Married Filing Jointly, Married Filing Separately, Head of Household, Qualifying Surviving Spouse
-- If married: spouse's name and SSN (last 4)
+- If married: spouse's name and SSN (last 4) or ITIN
 - Home address (street, city, state, ZIP)
 
 ### Section 2: Dependents
@@ -30,9 +30,15 @@ Work through these sections **one at a time**. Ask only a few questions per turn
 - If yes: name, SSN (last 4), relationship, date of birth, months lived with you
 
 ### Section 3: Income
-- W2 employment income (suggest using `/tax-import` if they have the PDF or can provide numbers)
+- W2 employment income (suggest `/tax-import` if they have the PDF)
 - For each W2: employer name, EIN, wages (box 1), federal tax withheld (box 2), state wages, state tax withheld
-- Any other income? (interest, dividends — for v1, note that we'll expand later)
+- **RSU/ESPP:** If user mentions stock compensation, RSU vesting, or ESPP → invoke `/tax-domain-rsu` for specialized questions
+- Interest income (1099-INT)
+- Dividend income (1099-DIV)
+- Capital gains/losses (1099-B) — suggest `/tax-import` for brokerage statements
+- **Crypto:** If user mentions cryptocurrency → invoke `/tax-domain-crypto` for specialized questions
+- **Rental income:** If user mentions rental property → invoke `/tax-domain-rental` for Schedule E questions
+- Any other income (1099-MISC, freelance, etc.)
 
 ### Section 4: Deductions
 - Ask if they want to itemize or take the standard deduction
@@ -41,12 +47,13 @@ Work through these sections **one at a time**. Ask only a few questions per turn
   - Married Filing Jointly: $30,000
   - Head of Household: $22,500
 - If itemizing, collect: state/local taxes (SALT, capped at $10,000), mortgage interest, charitable donations
-- Note: for v1, recommend standard deduction unless they clearly benefit from itemizing
+- Recommend standard deduction unless they clearly benefit from itemizing
 
 ### Section 5: Credits
 - Any education expenses? (American Opportunity, Lifetime Learning)
 - Child tax credit (auto-calculated from dependents)
 - Earned Income Credit eligibility
+- Any childcare expenses? (Child and Dependent Care Credit)
 
 ### Section 6: Other
 - Do you want to designate $3 to the Presidential Election Campaign Fund?
@@ -68,9 +75,15 @@ After each section, save the collected data to `data/tax-profile.json`. Use this
   "deductions": { ... },
   "credits": { ... },
   "other": { ... },
+  "domains": {
+    "rsu": null,
+    "rental": null,
+    "harvest": null,
+    "crypto": null
+  },
   "interviewStatus": {
-    "completedSections": ["personalInfo"],
-    "currentSection": "dependents",
+    "completedSections": [],
+    "currentSection": "personalInfo",
     "lastUpdated": "2026-04-01"
   }
 }
