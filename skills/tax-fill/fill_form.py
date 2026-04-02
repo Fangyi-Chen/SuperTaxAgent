@@ -162,11 +162,19 @@ def fill_pdf(profile_path: str, calc_path: str, blank_pdf_path: str, output_path
 
     reader = PdfReader(blank_pdf_path)
     writer = PdfWriter()
-    writer.append_pages_from_reader(reader)
+    writer.clone_document_from_reader(reader)
+
+    # Ensure AcroForm exists (IRS forms use XFA which may not have AcroForm by default)
+    if "/AcroForm" not in writer._root_object:
+        from pypdf.generic import DictionaryObject, ArrayObject
+        writer._root_object["/AcroForm"] = DictionaryObject()
+    if "/Fields" not in writer._root_object["/AcroForm"]:
+        writer._root_object["/AcroForm"]["/Fields"] = ArrayObject()
 
     # Fill fields on all pages
-    for page in writer.pages:
-        writer.update_page_form_field_values(page, field_values)
+    writer.update_page_form_field_values(writer.pages[0], field_values)
+    if len(writer.pages) > 1:
+        writer.update_page_form_field_values(writer.pages[1], field_values)
 
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "wb") as f:
