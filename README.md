@@ -16,14 +16,14 @@ AI-powered tax filing assistant for Claude Code. File your federal tax return th
 Add the marketplace, then install:
 
 ```
-/plugin marketplace add fangyic/tax-agent-marketplace
-/plugin install tax-agent@tax-agent-marketplace
+/plugin marketplace add Fangyi-Chen/super-cpa-us-tax-marketplace
+/plugin install super-cpa-us-tax@super-cpa-us-tax-marketplace
 ```
 
 Or install directly from GitHub:
 
 ```
-/plugin install https://github.com/fangyic/tax-agent.git
+/plugin install https://github.com/Fangyi-Chen/super-cpa-us-tax.git
 ```
 
 ## Skills
