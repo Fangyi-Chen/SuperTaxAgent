@@ -1,10 +1,12 @@
 {
   "name": "tax-agent",
-  "description": "AI tax filing assistant — interview, import documents, calculate, and fill IRS forms. Supports RSU, rental income, crypto, and tax-loss harvesting.",
+  "description": "AI tax filing assistant — interactive interview, document import (W2/1099), federal tax calculation, and mail-ready IRS Form 1040 PDF generation. Includes domain knowledge for RSU, rental property, crypto, and tax-loss harvesting. Self-evolving through community contributions.",
   "version": "0.1.0",
-  "author": "fangyic",
-  "homepage": "",
-  "repository": "",
+  "author": {
+    "name": "fangyic"
+  },
+  "homepage": "https://github.com/fangyic/tax-agent",
+  "repository": "https://github.com/fangyic/tax-agent",
   "license": "MIT",
-  "keywords": ["tax", "1040", "irs", "filing", "w2", "1099"]
+  "keywords": ["tax", "1040", "irs", "filing", "w2", "1099", "tax-return", "refund", "rsu", "crypto", "rental"]
 }
