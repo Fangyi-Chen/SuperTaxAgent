@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧾 Super CPA · US Tax
+# 🧾 SuperTaxAgent
 
 **AI-powered US federal tax filing, right inside Claude Code.**
 **在 Claude Code 里用 AI 报美国联邦税 — 免费、本地、开源。**
@@ -9,7 +9,7 @@
 [![Claude Code Plugin](https://img.shields.io/badge/Claude_Code-Plugin-8A4FFF.svg)](https://claude.com/claude-code)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing--招募合作者)
 
-*Import your W2. Ask Claude to do your taxes. Get a mail-ready 1040 PDF. No uploads, no subscriptions, no $400 CPA bill.*
+*Import your W2. Ask Claude to prepare your return. Get a mail-ready 1040 PDF. Local-first, open-source, no subscription.*
 
 </div>
 
@@ -19,11 +19,11 @@
 
 > **"征税没有征到最应该被征税的人身上，而是征到最容易被征税的人身上。"**
 >
-> Taxes don't fall on those who *should* pay them most — they fall on those who are *easiest* to tax: wage earners, immigrants, working families. Meanwhile, tax software costs $100–$300 a year and a CPA costs $400+ per return, even for a simple W2 filing.
+> Taxes don't fall on those who *should* pay them most — they fall on those who are *easiest* to tax: wage earners, immigrants, working families. Meanwhile, commercial tax software costs $100–$300 a year, even for a simple W2 filing.
 
-This project is built on a simple belief: **AI should serve the many, not the few.** With a capable model and a well-designed agent, you shouldn't need TurboTax or a CPA to file a straightforward return. Your data should stay on your laptop. The rules should be open. And if the agent gets something wrong, the whole community should be able to fix it — permanently, for everyone.
+This project is built on a simple belief: **AI should serve the many, not the few.** With a capable model and a well-designed agent, preparing a straightforward return shouldn't require an expensive annual subscription. Your data should stay on your laptop. The rules should be open. And if the agent gets something wrong, the whole community should be able to fix it — permanently, for everyone.
 
-这个项目的初衷，是基于 **"AI 造福最广大人民"** 的思想：让普通工薪家庭、留学生、新移民、小业主，都能免费、私密、体面地完成自己的报税，不必再依赖昂贵的报税软件和会计师。你的数据留在自己电脑上，规则全部开源，社区一起让它越来越准。
+这个项目的初衷，是基于 **"AI 造福最广大人民"** 的思想：让普通工薪家庭、留学生、新移民、小业主，都能免费、私密、体面地完成自己的报税准备工作，不必再被昂贵的年费软件反复收割。你的数据留在自己电脑上，规则全部开源，社区一起让它越来越准。
 
 ---
 
@@ -33,13 +33,13 @@ Install from the Claude Code plugin marketplace:
 
 ```
 /plugin marketplace add Fangyi-Chen/tax-marketplace
-/plugin install super-cpa-us-tax@tax-marketplace
+/plugin install super-tax-agent@tax-marketplace
 ```
 
 Or install directly from GitHub:
 
 ```
-/plugin install https://github.com/Fangyi-Chen/super-cpa-us-tax.git
+/plugin install https://github.com/Fangyi-Chen/SuperTaxAgent.git
 ```
 
 > Requires [Claude Code](https://claude.com/claude-code). Works on macOS, Linux, and Windows.
@@ -145,6 +145,22 @@ All data stays **100% local** on your machine.
 
 ---
 
+## ⚖️ Legal Notice · 法律声明
+
+**Not tax, legal, or accounting advice.** SuperTaxAgent is an open-source software tool for **individuals preparing their own tax returns**. It is provided for informational purposes only and does **not** constitute tax, legal, or accounting advice, and it does **not** create any professional-client relationship. You are solely responsible for reviewing your return for accuracy and for any filing you submit to the IRS or any state authority. For advice specific to your situation, consult a licensed tax professional (CPA, Enrolled Agent, or tax attorney).
+
+**Self-prep use only.** This tool is intended for self-preparation of your own return. If you prepare returns for others **for compensation**, you must obtain an IRS PTIN and comply with IRS Circular 230 as well as any applicable state registration requirements (e.g., CTEC in California, OBTP in Oregon, MD, NY). SuperTaxAgent does not grant, represent, or substitute for any such credential.
+
+**No affiliation.** SuperTaxAgent is an independent open-source project. It is not affiliated with, endorsed by, or sponsored by the Internal Revenue Service, Intuit Inc., TurboTax, H&R Block, or any certified public accountant, state board of accountancy, or government agency. All trademarks belong to their respective owners.
+
+**本工具不构成税务、法律或会计建议。** SuperTaxAgent 是一个供 **个人为自己准备税表** 使用的开源软件，仅供参考，不构成任何形式的税务、法律或会计专业意见，也不建立任何专业委托关系。您需对所提交税表的准确性和合法性自行负责。如需针对您具体情况的专业建议，请咨询持证税务专业人士（CPA、EA 或税务律师）。
+
+**仅限自用准备。** 若您 **以收取报酬的方式** 为他人报税，必须依法取得 IRS PTIN 并遵守 Circular 230 及各州相关注册要求（如加州 CTEC、俄勒冈 OBTP 等）。本项目不提供、不代表、也不能替代上述任何专业资质。
+
+**无官方关联。** 本项目为独立开源项目，与 IRS、Intuit、TurboTax、H&R Block 及任何 CPA、州注册会计师委员会或政府机构 **均无任何关联、背书或赞助关系**。所有商标归其各自所有者。
+
+---
+
 ## 🤝 Contributing · 招募合作者
 
 **This project is looking for collaborators.** 本项目正在招募长期合作者。
@@ -177,9 +193,9 @@ Licensed under the **Apache License 2.0** — free for personal and **commercial
 
 本项目采用 **Apache License 2.0** 协议，**允许免费商用**、修改、再分发。
 
-> **Attribution required.** Any redistribution, fork, derivative work, or commercial product **must credit this project** — preserve the `LICENSE` and `NOTICE` files, and clearly state that the work is based on *Super CPA · US Tax* (https://github.com/Fangyi-Chen/super-cpa-us-tax).
+> **Attribution required.** Any redistribution, fork, derivative work, or commercial product **must credit this project** — preserve the `LICENSE` and `NOTICE` files, and clearly state that the work is based on *SuperTaxAgent* (https://github.com/Fangyi-Chen/SuperTaxAgent).
 >
-> **必须署名。** 任何二次分发、fork、衍生作品或商业产品都 **必须注明本项目出处** — 保留 `LICENSE` 与 `NOTICE` 文件，并明确标注作品基于 *Super CPA · US Tax*（https://github.com/Fangyi-Chen/super-cpa-us-tax）。
+> **必须署名。** 任何二次分发、fork、衍生作品或商业产品都 **必须注明本项目出处** — 保留 `LICENSE` 与 `NOTICE` 文件，并明确标注作品基于 *SuperTaxAgent*（https://github.com/Fangyi-Chen/SuperTaxAgent）。
 
 See [`LICENSE`](./LICENSE) for the full text.
 

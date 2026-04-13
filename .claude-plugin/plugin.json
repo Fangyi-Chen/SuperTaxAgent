@@ -1,12 +1,13 @@
 {
-  "name": "super-cpa-us-tax",
-  "description": "AI tax filing assistant — interactive interview, document import (W2/1099), federal tax calculation, and mail-ready IRS Form 1040 PDF generation. Includes domain knowledge for RSU, rental property, crypto, and tax-loss harvesting. Self-evolving through community contributions.",
+  "name": "super-tax-agent",
+  "description": "AI tax filing assistant — interactive interview, document import (W2/1099), federal tax calculation, and mail-ready IRS Form 1040 PDF generation. Includes domain knowledge for RSU, rental property, crypto, and tax-loss harvesting. Self-evolving through community contributions. Self-prep use only; not tax or legal advice.",
   "version": "0.1.0",
   "author": {
-    "name": "fangyic"
+    "name": "Fangyi Chen",
+    "email": "fangyic@alumni.cmu.edu"
   },
-  "homepage": "https://github.com/Fangyi-Chen/super-cpa-us-tax",
-  "repository": "https://github.com/Fangyi-Chen/super-cpa-us-tax",
-  "license": "MIT",
+  "homepage": "https://github.com/Fangyi-Chen/SuperTaxAgent",
+  "repository": "https://github.com/Fangyi-Chen/SuperTaxAgent",
+  "license": "Apache-2.0",
   "keywords": ["tax", "1040", "irs", "filing", "w2", "1099", "tax-return", "refund", "rsu", "crypto", "rental"]
 }
