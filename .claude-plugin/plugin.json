@@ -1,5 +1,5 @@
 {
-  "name": "tax-agent",
+  "name": "super-cpa-us-tax",
   "description": "AI tax filing assistant — interactive interview, document import (W2/1099), federal tax calculation, and mail-ready IRS Form 1040 PDF generation. Includes domain knowledge for RSU, rental property, crypto, and tax-loss harvesting. Self-evolving through community contributions.",
   "version": "0.1.0",
   "author": {
