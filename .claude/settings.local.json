@@ -37,6 +37,7 @@
     ]
   },
   "enabledPlugins": {
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "super-cpa-us-tax@tax-marketplace": true
   }
 }

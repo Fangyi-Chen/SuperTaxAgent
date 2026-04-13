@@ -1,228 +1,160 @@
-# Form 1040 (2024) PDF Field Mapping Reference
+# Form 1040 (2025) PDF Field Mapping Reference
 
-Maps `data/tax-profile.json` and `data/tax-calculation.json` keys to actual PDF field names in `forms/f1040-2025.pdf`.
+Empirically verified against `forms/f1040-2025.pdf`. All field names use the full
+`topmostSubform[0].PageN[0]...` path — **never** the bare leaf name, because the
+form contains colliding leaf names (see note on `c1_8` below).
 
-## Notation
+## How this mapping was verified
 
-- **PDF Field**: Full `topmostSubform[0].PageN[0]...` path used by the PDF form filler
-- **JSON Path**: Dot-notation path into our data files (`profile.` = tax-profile.json, `calc.` = tax-calculation.json)
-- **(verify)**: Mapping is approximate; confirm against the actual PDF before relying on it
+1. **Text fields**: generate a "probe" PDF that fills every text field with its
+   own short name, then read the rendered PDF to see which label appears in
+   each box (see `SKILL.md` troubleshooting section for the exact snippet).
+2. **Checkboxes**: sort widgets by `/Rect` Y-coordinate (top-to-bottom), then
+   correlate with the visible form layout, and read the on-state name from
+   each widget's `/AP/N` dictionary (each IRS checkbox has a unique on-state
+   like `/1`, `/2`, `/3`, …).
 
 ---
 
 ## Page 1 — Personal Information
 
-### Your Name and SSN
+### Name and SSN
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page1[0].f1_01[0]` | Top | Your first name and middle initial | `profile.personalInfo.name` (first + middle) |
-| `topmostSubform[0].Page1[0].f1_02[0]` | Top | Your last name | `profile.personalInfo.name` (last) |
-| `topmostSubform[0].Page1[0].f1_03[0]` | Top | Your SSN | `profile.personalInfo.ssnLast4` (full SSN needed) |
-| `topmostSubform[0].Page1[0].f1_04[0]` | Top | Spouse first name and middle initial | `profile.personalInfo.spouse.name` (first + middle) |
-| `topmostSubform[0].Page1[0].f1_05[0]` | Top | Spouse last name | `profile.personalInfo.spouse.name` (last) |
-| `topmostSubform[0].Page1[0].f1_06[0]` | Top | Spouse SSN | `profile.personalInfo.spouse.ssnLast4` (full SSN needed) |
+| PDF Field                                                  | Description                         | JSON Path                               |
+|------------------------------------------------------------|-------------------------------------|-----------------------------------------|
+| `topmostSubform[0].Page1[0].f1_14[0]`                      | Your first name and middle initial  | `profile.personalInfo.name` (first+mid) |
+| `topmostSubform[0].Page1[0].f1_15[0]`                      | Your last name                      | `profile.personalInfo.name` (last)      |
+| `topmostSubform[0].Page1[0].f1_16[0]`                      | Your SSN (max 9 chars, no dashes)   | `profile.personalInfo.ssnLast4`         |
+| `topmostSubform[0].Page1[0].f1_17[0]`                      | Spouse first name + middle          | `profile.personalInfo.spouse.name`      |
+| `topmostSubform[0].Page1[0].f1_18[0]`                      | Spouse last name                    | `profile.personalInfo.spouse.name`      |
+| `topmostSubform[0].Page1[0].f1_19[0]`                      | Spouse SSN (max 9 chars, no dashes) | `profile.personalInfo.spouse.ssnLast4`  |
+
+Note: `f1_01` through `f1_13` are **not** name fields — they are the tax-year-begin
+date, combat zone, deceased, and other header-row fields. Do not fill them.
 
 ### Address
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_20[0]` | Address | Street address | `profile.personalInfo.address.street` |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_21[0]` | Address | Apt no. | — (not in our data) |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_22[0]` | Address | City, town or post office | `profile.personalInfo.address.city` |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_23[0]` | Address | State | `profile.personalInfo.address.state` |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_24[0]` | Address | ZIP code | `profile.personalInfo.address.zip` |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_25[0]` | Address | Foreign country name | — (not applicable) |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_26[0]` | Address | Foreign province/state | — (not applicable) |
-| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_27[0]` | Address | Foreign postal code | — (not applicable) |
+| PDF Field                                                            | Description                        | JSON Path                                |
+|----------------------------------------------------------------------|------------------------------------|------------------------------------------|
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_20[0]`           | Street address                     | `profile.personalInfo.address.street`    |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_21[0]`           | Apt no.                            | — (not in our data)                      |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_22[0]`           | City, town, or post office         | `profile.personalInfo.address.city`      |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_23[0]`           | State                              | `profile.personalInfo.address.state`     |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_24[0]`           | ZIP code                           | `profile.personalInfo.address.zip`       |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_25[0]`           | Foreign country                    | — (N/A)                                  |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_26[0]`           | Foreign province/state             | — (N/A)                                  |
+| `topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_27[0]`           | Foreign postal code                | — (N/A)                                  |
 
-### Filing Status Checkboxes
+### Filing Status Checkboxes — CRITICAL
 
-| PDF Field | Form Line | Description | JSON Path / Condition |
-|-----------|-----------|-------------|----------------------|
-| `topmostSubform[0].Page1[0].c1_1[0]` | Filing Status | Single | `calc.filingStatus == "Single"` |
-| `topmostSubform[0].Page1[0].c1_2[0]` | Filing Status | Married filing jointly | `calc.filingStatus == "Married Filing Jointly"` |
-| `topmostSubform[0].Page1[0].c1_3[0]` | Filing Status | Married filing separately | `calc.filingStatus == "Married Filing Separately"` |
-| `topmostSubform[0].Page1[0].c1_4[0]` | Filing Status | Head of household | `calc.filingStatus == "Head of Household"` |
-| `topmostSubform[0].Page1[0].c1_5[0]` | Filing Status | Qualifying surviving spouse | `calc.filingStatus == "Qualifying Surviving Spouse"` |
+**Two `c1_8` widgets exist** with different full paths but the same leaf name. Any
+approach that addresses fields by leaf alone (including `PyPDFForm`) will fill
+**both columns simultaneously**. Use the full qualified path and write `/V` + `/AS`
+directly on the widget with the on-state read from `/AP/N`.
 
-### Other Header Fields (verify)
+| Status                         | Full PDF Path                                                                     | On-state |
+|--------------------------------|-----------------------------------------------------------------------------------|----------|
+| Single                         | `topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[0]`                        | `/1`     |
+| Married Filing Jointly         | `topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[1]`                        | `/2`     |
+| Married Filing Separately      | `topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[2]`                        | `/3`     |
+| Head of Household              | `topmostSubform[0].Page1[0].c1_8[0]`                                              | `/4`     |
+| Qualifying Surviving Spouse    | `topmostSubform[0].Page1[0].c1_8[1]`                                              | `/5`     |
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page1[0].f1_07[0]` | MFS spouse | Spouse name if MFS (verify) | — |
-| `topmostSubform[0].Page1[0].f1_08[0]` | Digital assets | Digital assets question (verify) | `profile.income.otherIncome` (has 1099-DA → "Yes") |
-| `topmostSubform[0].Page1[0].c1_6[0]` | Digital assets | Digital assets "Yes" checkbox (verify) | Check if 1099-DA exists |
-| `topmostSubform[0].Page1[0].c1_7[0]` | Digital assets | Digital assets "No" checkbox (verify) | Check if no 1099-DA |
-| `topmostSubform[0].Page1[0].c1_8[0]` | Std deduction | You as dependent checkbox (verify) | — |
+Each checkbox's on-state is unique; `check_checkbox(annot)` in `fill_form.py`
+reads `/AP/N` dynamically so you don't need to hard-code these values, but they
+are recorded here for reference when debugging.
 
 ### Dependents Table
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_31[0]` | Dependents | Dependent 1 name | `profile.dependents[0].name` |
-| `topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_32[0]` | Dependents | Dependent 1 SSN | `profile.dependents[0].ssnLast4` (full SSN needed) |
-| `topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_33[0]` | Dependents | Dependent 1 relationship | `profile.dependents[0].relationship` |
-| `topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_34[0]` | Dependents | Dependent 1 CTC checkbox | `calc.credits.childTaxCredit.qualifyingChildren >= 1` |
+The `Table_Dependents` is organized by **row = attribute, column = dependent**.
+For dependent N (1-4):
+
+| Attribute      | PDF Field                                                                              | Field # formula |
+|----------------|----------------------------------------------------------------------------------------|-----------------|
+| First name     | `topmostSubform[0].Page1[0].Table_Dependents[0].Row1[0].f1_{30+N}[0]`                  | 30+N            |
+| Last name      | `topmostSubform[0].Page1[0].Table_Dependents[0].Row2[0].f1_{34+N}[0]`                  | 34+N            |
+| SSN            | `topmostSubform[0].Page1[0].Table_Dependents[0].Row3[0].f1_{38+N}[0]`                  | 38+N            |
+| Relationship   | `topmostSubform[0].Page1[0].Table_Dependents[0].Row4[0].f1_{42+N}[0]`                  | 42+N            |
+
+CTC/ODC checkboxes live under `Table_Dependents[0].Row5[0].Dependent{N}[0].c1_{10+2N}` etc.
+Not currently filled by `fill_form.py`.
 
 ---
 
-## Page 1 — Income Section
+## Page 1 — Income
 
-Field numbers f1_47 through f1_75 map to income lines. The exact mapping depends on the 2024 form revision. Below is the best-effort mapping based on standard line ordering.
+| PDF Field                                 | Line | Description                          | JSON Path (nested or flat)                                              |
+|-------------------------------------------|------|--------------------------------------|-------------------------------------------------------------------------|
+| `topmostSubform[0].Page1[0].f1_47[0]`     | 1a   | Wages from Form W-2 box 1            | `calc.income.wages` / `line1a_wages` / fallback `sum(profile.w2s.box1)` |
+| `topmostSubform[0].Page1[0].f1_56[0]`     | 1z   | Total wages (add 1a..1h)             | same as 1a in the common case                                           |
+| `topmostSubform[0].Page1[0].f1_58[0]`     | 2b   | Taxable interest                     | `calc.income.interestIncome` / `line2b_interest`                        |
+| `topmostSubform[0].Page1[0].f1_59[0]`     | 3a   | Qualified dividends                  | `calc.income.qualifiedDividends` / `line3a_qualifiedDiv`                |
+| `topmostSubform[0].Page1[0].f1_60[0]`     | 3b   | Ordinary dividends                   | `calc.income.ordinaryDividends` / `line3b_ordinaryDiv`                  |
+| `topmostSubform[0].Page1[0].f1_68[0]`     | 7    | Capital gain or loss (Sch D)         | `calc.income.capitalGains.netCapitalGains` / `line7_capitalGain`        |
+| `topmostSubform[0].Page1[0].f1_69[0]`     | 8    | Other income (Sch 1, incl. rental)   | `calc.income.otherIncome` / `line8_otherIncome`                         |
+| `topmostSubform[0].Page1[0].f1_70[0]`     | 9    | Total income                         | `calc.income.totalIncome` / `line9_totalIncome`                         |
+| `topmostSubform[0].Page1[0].f1_71[0]`     | 10   | Adjustments to income                | `calc.adjustments` / `line10_adjustments`                               |
+| `topmostSubform[0].Page1[0].f1_72[0]`     | 11   | AGI                                  | `calc.agi` / `line11_agi`                                               |
+| `topmostSubform[0].Page1[0].f1_73[0]`     | 12   | Standard or itemized deduction       | `calc.deduction.amount` / `line12_standardDeduction`                    |
+| `topmostSubform[0].Page1[0].f1_75[0]`     | 14   | Add lines 12 + 13                    | same as 12 when no QBI (line 13)                                        |
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page1[0].f1_47[0]` | Line 1a | Wages, salaries, tips | `calc.income.wages` |
-| `topmostSubform[0].Page1[0].f1_48[0]` | Line 1b | Household employee income (verify) | — |
-| `topmostSubform[0].Page1[0].f1_49[0]` | Line 1c | Tip income not on W-2 (verify) | — |
-| `topmostSubform[0].Page1[0].f1_50[0]` | Line 1d | Medicaid waiver payments (verify) | — |
-| `topmostSubform[0].Page1[0].f1_51[0]` | Line 1e | Dependent care benefits (verify) | — |
-| `topmostSubform[0].Page1[0].f1_52[0]` | Line 1f | Employer-provided adoption benefits (verify) | — |
-| `topmostSubform[0].Page1[0].f1_53[0]` | Line 1g | Form 8919 wages (verify) | — |
-| `topmostSubform[0].Page1[0].f1_54[0]` | Line 1h | Strike benefits (verify) | — |
-| `topmostSubform[0].Page1[0].f1_55[0]` | Line 1i | Stock option income (verify) | — |
-| `topmostSubform[0].Page1[0].f1_56[0]` | Line 1z | Add 1a through 1i (verify) | `calc.income.wages` (same if only W-2 wages) |
-| `topmostSubform[0].Page1[0].f1_57[0]` | Line 2a | Tax-exempt interest | — (not in our data) |
-| `topmostSubform[0].Page1[0].f1_58[0]` | Line 2b | Taxable interest | `calc.income.interestIncome` |
-| `topmostSubform[0].Page1[0].f1_59[0]` | Line 3a | Qualified dividends | `calc.income.qualifiedDividends` |
-| `topmostSubform[0].Page1[0].f1_60[0]` | Line 3b | Ordinary dividends | `calc.income.ordinaryDividends` |
-| `topmostSubform[0].Page1[0].f1_61[0]` | Line 4a | IRA distributions | — |
-| `topmostSubform[0].Page1[0].f1_62[0]` | Line 4b | IRA distributions taxable | — |
-| `topmostSubform[0].Page1[0].f1_63[0]` | Line 5a | Pensions and annuities | — |
-| `topmostSubform[0].Page1[0].f1_64[0]` | Line 5b | Pensions taxable amount | — |
-| `topmostSubform[0].Page1[0].f1_65[0]` | Line 6a | Social security benefits | — |
-| `topmostSubform[0].Page1[0].f1_66[0]` | Line 6b | Social security taxable | — |
-| `topmostSubform[0].Page1[0].f1_67[0]` | Line 6c | Election to exclude lump-sum (verify) | — |
-| `topmostSubform[0].Page1[0].f1_68[0]` | Line 7 | Capital gain or loss | `calc.income.capitalGains.netCapitalGains` |
-| `topmostSubform[0].Page1[0].f1_69[0]` | Line 8 | Other income (Sched 1) | — |
-| `topmostSubform[0].Page1[0].f1_70[0]` | Line 9 | Total income | `calc.income.totalIncome` |
-| `topmostSubform[0].Page1[0].f1_71[0]` | Line 10 | Adjustments to income | `calc.adjustments` |
-| `topmostSubform[0].Page1[0].f1_72[0]` | Line 11 | Adjusted gross income (AGI) | `calc.agi` |
-| `topmostSubform[0].Page1[0].f1_73[0]` | Line 12 | Standard/itemized deduction | `calc.deduction.amount` |
-| `topmostSubform[0].Page1[0].f1_74[0]` | Line 13 | Qualified business income deduction | — |
-| `topmostSubform[0].Page1[0].f1_75[0]` | Line 14 | Total deductions (12 + 13) | `calc.deduction.amount` (same, no QBI) |
-
-> **Note**: Lines 1b-1i fields (f1_48 through f1_55) are sub-lines of wages. Our data only has total W-2 wages, so we fill Line 1a and Line 1z. The field numbering between f1_56 and f1_68 may shift by 1-2 positions depending on the exact PDF layout. Fields marked (verify) should be confirmed by inspecting the PDF.
+Sub-lines 1b–1i (`f1_48`–`f1_55`), 2a tax-exempt interest (`f1_57`), IRAs
+(`f1_61`/`f1_62`), pensions (`f1_63`/`f1_64`), Social Security (`f1_65`/`f1_66`),
+and QBI (`f1_74`) exist on the form but are not populated by `fill_form.py`
+unless the corresponding data is present.
 
 ---
 
 ## Page 2 — Tax, Credits, Payments
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page2[0].f2_01[0]` | Line 15 | Taxable income | `calc.taxableIncome` |
-| `topmostSubform[0].Page2[0].f2_02[0]` | Line 16 | Tax | `calc.tax.totalTax` |
-| `topmostSubform[0].Page2[0].f2_03[0]` | Line 17 | Amount from Schedule 2, Part I, line 4 (verify) | — |
-| `topmostSubform[0].Page2[0].f2_04[0]` | Line 18 | Sum of lines 16 and 17 | `calc.tax.totalTax` (no Sched 2 amount) |
-| `topmostSubform[0].Page2[0].f2_05[0]` | Line 19 | Child tax credit / other credits | `calc.credits.childTaxCredit.nonrefundable` |
-| `topmostSubform[0].Page2[0].f2_06[0]` | Line 20 | Amount from Schedule 3, Part I, line 8 (verify) | — |
-| `topmostSubform[0].Page2[0].f2_07[0]` | Line 21 | Sum of lines 19 and 20 | `calc.credits.childTaxCredit.nonrefundable` |
-| `topmostSubform[0].Page2[0].f2_08[0]` | Line 22 | Line 18 minus line 21 | `calc.tax.totalTax` (0 in our case) |
-| `topmostSubform[0].Page2[0].f2_09[0]` | Line 23 | Other taxes from Schedule 2 (verify) | — |
-| `topmostSubform[0].Page2[0].f2_10[0]` | Line 24 | Total tax | `calc.totalTax` |
+| PDF Field                                 | Line | Description                                | JSON Path                                                            |
+|-------------------------------------------|------|--------------------------------------------|----------------------------------------------------------------------|
+| `topmostSubform[0].Page2[0].f2_01[0]`     | 15   | Taxable income                             | `calc.taxableIncome` / `line15_taxableIncome`                        |
+| `topmostSubform[0].Page2[0].f2_02[0]`     | 16   | Tax                                        | `calc.tax.totalTax` / `line16_tax`                                   |
+| `topmostSubform[0].Page2[0].f2_04[0]`     | 18   | Add lines 16 + 17                          | same as 16 when no Sch 2 line 3                                      |
+| `topmostSubform[0].Page2[0].f2_05[0]`     | 19   | Child tax credit / other dependents credit | `calc.credits.childTaxCredit.nonrefundable` / `line19_ctcNonrefundable` |
+| `topmostSubform[0].Page2[0].f2_06[0]`     | 20   | Schedule 3 line 8 (e.g. FTC)               | `calc.credits.schedule3` / `line20_schedule3`                        |
+| `topmostSubform[0].Page2[0].f2_07[0]`     | 21   | Line 19 + 20                               | computed                                                             |
+| `topmostSubform[0].Page2[0].f2_08[0]`     | 22   | Line 18 minus 21                           | `calc.totalTax` / `line24_totalTax` (before other taxes)             |
+| `topmostSubform[0].Page2[0].f2_10[0]`     | 24   | Total tax                                  | `calc.totalTax` / `line24_totalTax`                                  |
 
-### Payments Section
+### Payments
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page2[0].f2_11[0]` | Line 25a | Federal tax withheld (W-2s) | `calc.payments.federalWithheld` |
-| `topmostSubform[0].Page2[0].f2_12[0]` | Line 25b | Federal tax withheld (1099s) | — (0 in our data) |
-| `topmostSubform[0].Page2[0].f2_13[0]` | Line 25c | Other withholding forms | — |
-| `topmostSubform[0].Page2[0].f2_14[0]` | Line 25d | Total withholding (sum) | `calc.payments.federalWithheld` |
-| `topmostSubform[0].Page2[0].f2_15[0]` | Line 26 | Estimated tax payments | — |
-| `topmostSubform[0].Page2[0].f2_16[0]` | Line 27a | Earned income credit (EIC) | `calc.payments.earnedIncomeCredit` |
-| `topmostSubform[0].Page2[0].f2_17[0]` | Line 27b | Nontaxable combat pay (verify) | — |
-| `topmostSubform[0].Page2[0].f2_18[0]` | Line 27c | Prior year EIC amount (verify) | — |
-| `topmostSubform[0].Page2[0].f2_19[0]` | Line 28 | Additional child tax credit (Sched 8812) | `calc.payments.additionalChildTaxCredit` |
-| `topmostSubform[0].Page2[0].f2_20[0]` | Line 29 | American opportunity credit | — |
-| `topmostSubform[0].Page2[0].f2_21[0]` | Line 30 | Reserved for future use (verify) | — |
-| `topmostSubform[0].Page2[0].f2_22[0]` | Line 31 | Amount from Schedule 3, Part II | — |
-| `topmostSubform[0].Page2[0].f2_23[0]` | Line 32 | Sum of 27a+28+29+30+31 | `calc.payments.earnedIncomeCredit + calc.payments.additionalChildTaxCredit` |
-| `topmostSubform[0].Page2[0].f2_24[0]` | Line 33 | Total payments | `calc.payments.totalPayments` |
+| PDF Field                                 | Line | Description                        | JSON Path                                                        |
+|-------------------------------------------|------|------------------------------------|------------------------------------------------------------------|
+| `topmostSubform[0].Page2[0].f2_11[0]`     | 25a  | Federal tax withheld from W-2      | `calc.payments.federalWithheld` / `line25a_w2Withheld`           |
+| `topmostSubform[0].Page2[0].f2_12[0]`     | 25b  | Federal tax withheld from 1099s    | `calc.payments.withheld1099` / `line25b_1099Withheld`            |
+| `topmostSubform[0].Page2[0].f2_14[0]`     | 25d  | Total withholding (25a+25b+25c)    | computed                                                         |
+| `topmostSubform[0].Page2[0].f2_16[0]`     | 27   | Earned income credit (EIC)         | `calc.payments.earnedIncomeCredit` / `line27_eic`                |
+| `topmostSubform[0].Page2[0].f2_19[0]`     | 28   | Additional child tax credit        | `calc.payments.additionalChildTaxCredit` / `line28_actc`         |
+| `topmostSubform[0].Page2[0].f2_23[0]`     | 32   | Sum of refundable credits          | computed                                                         |
+| `topmostSubform[0].Page2[0].f2_24[0]`     | 33   | Total payments                     | `calc.payments.totalPayments` / `line33_totalPayments`           |
 
-### Refund Section
+### Refund / Amount Owed
 
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page2[0].f2_25[0]` | Line 34 | Overpaid amount | `calc.refundOrOwed.amount` (if type == "refund") |
-| `topmostSubform[0].Page2[0].f2_26[0]` | Line 35a | Refunded to you | `calc.refundOrOwed.amount` (if type == "refund") |
-| `topmostSubform[0].Page2[0].RoutingNo[0].f2_32[0]` | Line 35b | Routing number | `profile.other.directDeposit` (not yet configured) |
-| `topmostSubform[0].Page2[0].AccountNo[0].f2_33[0]` | Line 35d | Account number | `profile.other.directDeposit` (not yet configured) |
-| `topmostSubform[0].Page2[0].f2_27[0]` | Line 35b | Account type checkbox area (verify) | — |
-
-### Amount Owed / Penalty
-
-| PDF Field | Form Line | Description | JSON Path |
-|-----------|-----------|-------------|-----------|
-| `topmostSubform[0].Page2[0].f2_28[0]` | Line 36 | Applied to next year's estimated tax (verify) | — |
-| `topmostSubform[0].Page2[0].f2_29[0]` | Line 37 | Amount you owe | `calc.refundOrOwed.amount` (if type == "owed") |
-| `topmostSubform[0].Page2[0].f2_30[0]` | Line 38 | Estimated tax penalty (verify) | — |
-
----
-
-## Page 2 — Checkboxes
-
-| PDF Field | Form Line | Description | JSON Path / Condition |
-|-----------|-----------|-------------|----------------------|
-| `topmostSubform[0].Page2[0].c2_1[0]` | Line 16 | Tax checkbox (Form 8814, etc.) (verify) | — |
-| `topmostSubform[0].Page2[0].c2_7[0]` | Line 27 | EIC checkbox — nontaxable pay (verify) | — |
-| `topmostSubform[0].Page2[0].c2_8[0]` | Line 35b | Checking account type (verify) | — |
-| `topmostSubform[0].Page2[0].c2_9[0]` | Line 35b | Savings account type (verify) | — |
-
----
-
-## Fields We Fill for Our Return
-
-Summary of fields actually populated from our data (Fangyi Chen, MFJ, TY 2025):
-
-| Form Line | Value | PDF Field |
-|-----------|-------|-----------|
-| First name | Fangyi | `Page1[0].f1_01[0]` |
-| Last name | Chen | `Page1[0].f1_02[0]` |
-| SSN | ***-**-0921 | `Page1[0].f1_03[0]` |
-| Spouse first name | Qiqi | `Page1[0].f1_04[0]` |
-| Spouse last name | Hao | `Page1[0].f1_05[0]` |
-| Spouse SSN | ***-**-4528 | `Page1[0].f1_06[0]` |
-| Street | 2628 139th Ave SE | `Address_ReadOrder[0].f1_20[0]` |
-| City | Bellevue | `Address_ReadOrder[0].f1_22[0]` |
-| State | WA | `Address_ReadOrder[0].f1_23[0]` |
-| ZIP | 98005 | `Address_ReadOrder[0].f1_24[0]` |
-| Filing status | MFJ | `Page1[0].c1_2[0]` |
-| Digital assets | Yes | `Page1[0].c1_6[0]` (verify) |
-| Dependent 1 name | Chloe Hao Chen | `Table_Dependents[0].Row1[0].f1_31[0]` |
-| Dependent 1 SSN | ***-**-7703 | `Table_Dependents[0].Row1[0].f1_32[0]` |
-| Dependent 1 relation | daughter | `Table_Dependents[0].Row1[0].f1_33[0]` |
-| Dependent 1 CTC | Yes | `Table_Dependents[0].Row1[0].f1_34[0]` |
-| Line 1a (wages) | 10,823.08 | `Page1[0].f1_47[0]` |
-| Line 1z (total wages) | 10,823.08 | `Page1[0].f1_56[0]` (verify) |
-| Line 2b (taxable interest) | 977.61 | `Page1[0].f1_58[0]` (verify) |
-| Line 3a (qualified div) | 68.53 | `Page1[0].f1_59[0]` (verify) |
-| Line 3b (ordinary div) | 69.69 | `Page1[0].f1_60[0]` (verify) |
-| Line 7 (capital gains) | 929.01 | `Page1[0].f1_68[0]` (verify) |
-| Line 9 (total income) | 12,799.39 | `Page1[0].f1_70[0]` (verify) |
-| Line 10 (adjustments) | 0 | `Page1[0].f1_71[0]` (verify) |
-| Line 11 (AGI) | 12,799.39 | `Page1[0].f1_72[0]` (verify) |
-| Line 12 (std deduction) | 30,000 | `Page1[0].f1_73[0]` (verify) |
-| Line 14 (total deductions) | 30,000 | `Page1[0].f1_75[0]` (verify) |
-| Line 15 (taxable income) | 0 | `Page2[0].f2_01[0]` |
-| Line 16 (tax) | 0 | `Page2[0].f2_02[0]` |
-| Line 24 (total tax) | 0 | `Page2[0].f2_10[0]` (verify) |
-| Line 25a (W-2 withheld) | 482.68 | `Page2[0].f2_11[0]` (verify) |
-| Line 25d (total withheld) | 482.68 | `Page2[0].f2_14[0]` (verify) |
-| Line 27a (EIC) | 3,679.85 | `Page2[0].f2_16[0]` (verify) |
-| Line 28 (add'l CTC) | 1,248.46 | `Page2[0].f2_19[0]` (verify) |
-| Line 33 (total payments) | 5,410.99 | `Page2[0].f2_24[0]` (verify) |
-| Line 34 (overpaid) | 5,410.99 | `Page2[0].f2_25[0]` (verify) |
-| Line 35a (refunded) | 5,410.99 | `Page2[0].f2_26[0]` (verify) |
+| PDF Field                                 | Line | Description       | JSON Path                                                 |
+|-------------------------------------------|------|-------------------|-----------------------------------------------------------|
+| `topmostSubform[0].Page2[0].f2_25[0]`     | 34   | Overpaid amount   | `calc.refundOrOwed.amount` (if `type == "refund"`)        |
+| `topmostSubform[0].Page2[0].f2_26[0]`     | 35a  | Refunded to you   | same as above                                             |
+| `topmostSubform[0].Page2[0].f2_29[0]`     | 37   | Amount you owe    | `calc.refundOrOwed.amount` (if `type == "owed"`)          |
 
 ---
 
 ## Implementation Notes
 
-1. **SSN fields**: Our data only stores last-4 digits. Full SSNs must be provided at fill time (never stored in repo).
-2. **Name splitting**: `tax-profile.json` stores full names. The fill script must split into first/last for the PDF fields.
-3. **Checkbox values**: IRS PDF checkboxes typically use value `1` or `Yes` for checked state. Test with the actual PDF.
-4. **Number formatting**: The IRS form expects numbers without `$` signs. Round to nearest dollar for most lines, or show cents where the form allows.
-5. **Field verification**: All fields marked (verify) should be confirmed by running `pdftk forms/f1040-2025.pdf dump_data_fields` and cross-referencing the field order with a visual inspection of the PDF.
-6. **Page 2 field offsets**: The f2_XX numbering may not be perfectly sequential with form lines. The offset between field numbers and line numbers can vary. Verify with actual PDF inspection.
+1. **SSN format**: the SSN fields have `maxLength=9`, so the value must be exactly
+   9 characters with no dashes. `fill_form.py` uses a 9-char mask `*****NNNN`; users
+   must write in the real digits before mailing.
+2. **Name splitting**: `profile.personalInfo.name` is a single string. `split_name()`
+   puts everything except the last whitespace-separated token in the first-name
+   field, matching how IRS "first name and middle initial" is rendered.
+3. **Number formatting**: whole dollars for income/tax lines (`fmt()`), cents for
+   withholding/payments/refund (`fmt_cents()`). No `$` or `,` separators.
+4. **Checkboxes**: never address by leaf name alone. Always walk `/Parent` to build
+   the full qualified path, then read `/AP/N` to discover the widget's on-state.
+   See `SKILL.md` §"How fill_form.py works" for the rationale.
+5. **Schema tolerance**: when adding new fields, use `pick(obj, "nested.path", "line_numbered_path", default=...)` so the script works with either the
+   `tax-calculate` skill's output shape or a hand-written calc JSON.
+6. **Year-to-year drift**: IRS renumbers fields each tax year. When updating to a
+   new PDF, rerun the probe technique in `SKILL.md` troubleshooting to rediscover
+   the text-field mapping, and rerun the `/Rect` Y-sort to relocate checkboxes.
