@@ -30,7 +30,7 @@ Invocation: `/tax-publish [description]`
 Read `.claude-plugin/plugin.json` and extract the `repository` field.
 
 If `repository` is empty or missing:
-> "The `repository` field in `.claude-plugin/plugin.json` is not set. Please add your GitHub repository URL (e.g., `https://github.com/fangyic/tax-agent`) and run `/tax-publish` again."
+> "The `repository` field in `.claude-plugin/plugin.json` is not set. Please add your GitHub repository URL (e.g., `https://github.com/your-username/your-repo`) and run `/tax-publish` again."
 
 Stop if no repository is configured.
 

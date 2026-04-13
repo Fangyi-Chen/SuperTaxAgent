@@ -6,4 +6,6 @@ node_modules/
 __pycache__/
 *.pyc
 .claude/skills/
+.claude/settings.local.json
 .claude-plugins/
+docs/superpowers/
