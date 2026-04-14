@@ -81,62 +81,81 @@ Not currently filled by `fill_form.py`.
 
 ---
 
-## Page 1 — Income
+## Page 1 — Income (verified 2025)
 
-| PDF Field                                 | Line | Description                          | JSON Path (nested or flat)                                              |
-|-------------------------------------------|------|--------------------------------------|-------------------------------------------------------------------------|
-| `topmostSubform[0].Page1[0].f1_47[0]`     | 1a   | Wages from Form W-2 box 1            | `calc.income.wages` / `line1a_wages` / fallback `sum(profile.w2s.box1)` |
-| `topmostSubform[0].Page1[0].f1_56[0]`     | 1z   | Total wages (add 1a..1h)             | same as 1a in the common case                                           |
-| `topmostSubform[0].Page1[0].f1_58[0]`     | 2b   | Taxable interest                     | `calc.income.interestIncome` / `line2b_interest`                        |
-| `topmostSubform[0].Page1[0].f1_59[0]`     | 3a   | Qualified dividends                  | `calc.income.qualifiedDividends` / `line3a_qualifiedDiv`                |
-| `topmostSubform[0].Page1[0].f1_60[0]`     | 3b   | Ordinary dividends                   | `calc.income.ordinaryDividends` / `line3b_ordinaryDiv`                  |
-| `topmostSubform[0].Page1[0].f1_68[0]`     | 7    | Capital gain or loss (Sch D)         | `calc.income.capitalGains.netCapitalGains` / `line7_capitalGain`        |
-| `topmostSubform[0].Page1[0].f1_69[0]`     | 8    | Other income (Sch 1, incl. rental)   | `calc.income.otherIncome` / `line8_otherIncome`                         |
-| `topmostSubform[0].Page1[0].f1_70[0]`     | 9    | Total income                         | `calc.income.totalIncome` / `line9_totalIncome`                         |
-| `topmostSubform[0].Page1[0].f1_71[0]`     | 10   | Adjustments to income                | `calc.adjustments` / `line10_adjustments`                               |
-| `topmostSubform[0].Page1[0].f1_72[0]`     | 11   | AGI                                  | `calc.agi` / `line11_agi`                                               |
-| `topmostSubform[0].Page1[0].f1_73[0]`     | 12   | Standard or itemized deduction       | `calc.deduction.amount` / `line12_standardDeduction`                    |
-| `topmostSubform[0].Page1[0].f1_75[0]`     | 14   | Add lines 12 + 13                    | same as 12 when no QBI (line 13)                                        |
+Lines 12-14 live on **page 2** in the 2025 form. Page 1 ends at line 11a (AGI).
 
-Sub-lines 1b–1i (`f1_48`–`f1_55`), 2a tax-exempt interest (`f1_57`), IRAs
-(`f1_61`/`f1_62`), pensions (`f1_63`/`f1_64`), Social Security (`f1_65`/`f1_66`),
-and QBI (`f1_74`) exist on the form but are not populated by `fill_form.py`
-unless the corresponding data is present.
+| PDF Field                                 | Line | Description                          | JSON key (lines shape)  |
+|-------------------------------------------|------|--------------------------------------|-------------------------|
+| `topmostSubform[0].Page1[0].f1_47[0]`     | 1a   | Total W-2 box 1 wages                | `lines.1a`              |
+| `topmostSubform[0].Page1[0].f1_48[0]`     | 1b   | Household employee wages             | `lines.1b`              |
+| `topmostSubform[0].Page1[0].f1_49[0]`     | 1c   | Tip income not reported              | `lines.1c`              |
+| `topmostSubform[0].Page1[0].f1_50[0]`     | 1d   | Medicaid waiver payments             | `lines.1d`              |
+| `topmostSubform[0].Page1[0].f1_51[0]`     | 1e   | Taxable dependent care benefits      | `lines.1e`              |
+| `topmostSubform[0].Page1[0].f1_52[0]`     | 1f   | Employer adoption benefits           | `lines.1f`              |
+| `topmostSubform[0].Page1[0].f1_53[0]`     | 1g   | Wages from Form 8919                 | `lines.1g`              |
+| `topmostSubform[0].Page1[0].f1_55[0]`     | 1h   | Other earned income (amount)         | `lines.1h`              |
+| `topmostSubform[0].Page1[0].f1_56[0]`     | 1i   | Nontaxable combat pay election       | `lines.1i`              |
+| `topmostSubform[0].Page1[0].f1_57[0]`     | 1z   | Add lines 1a–1h                      | `lines.1z`              |
+| `topmostSubform[0].Page1[0].f1_58[0]`     | 2a   | Tax-exempt interest                  | `lines.2a`              |
+| `topmostSubform[0].Page1[0].f1_59[0]`     | 2b   | Taxable interest                     | `lines.2b`              |
+| `topmostSubform[0].Page1[0].f1_60[0]`     | 3a   | Qualified dividends                  | `lines.3a`              |
+| `topmostSubform[0].Page1[0].f1_61[0]`     | 3b   | Ordinary dividends                   | `lines.3b`              |
+| `topmostSubform[0].Page1[0].f1_62[0]`     | 4a   | IRA distributions                    | `lines.4a`              |
+| `topmostSubform[0].Page1[0].f1_63[0]`     | 4b   | IRAs taxable amount                  | `lines.4b`              |
+| `topmostSubform[0].Page1[0].f1_65[0]`     | 5a   | Pensions and annuities               | `lines.5a`              |
+| `topmostSubform[0].Page1[0].f1_66[0]`     | 5b   | Pensions taxable amount              | `lines.5b`              |
+| `topmostSubform[0].Page1[0].f1_68[0]`     | 6a   | Social Security benefits             | `lines.6a`              |
+| `topmostSubform[0].Page1[0].f1_69[0]`     | 6b   | SS taxable amount                    | `lines.6b`              |
+| `topmostSubform[0].Page1[0].f1_70[0]`     | 7    | Capital gain or loss (Sch D)         | `lines.7`               |
+| `topmostSubform[0].Page1[0].f1_72[0]`     | 8    | Additional income (Sch 1 line 10)    | `lines.8`               |
+| `topmostSubform[0].Page1[0].f1_73[0]`     | 9    | Total income                         | `lines.9`               |
+| `topmostSubform[0].Page1[0].f1_74[0]`     | 10   | Adjustments (Sch 1 line 26)          | `lines.10`              |
+| `topmostSubform[0].Page1[0].f1_75[0]`     | 11a  | Adjusted gross income (AGI)          | `lines.11a` / `lines.11`|
 
 ---
 
-## Page 2 — Tax, Credits, Payments
+## Page 2 — Tax, Credits, Payments (verified 2025)
 
-| PDF Field                                 | Line | Description                                | JSON Path                                                            |
-|-------------------------------------------|------|--------------------------------------------|----------------------------------------------------------------------|
-| `topmostSubform[0].Page2[0].f2_01[0]`     | 15   | Taxable income                             | `calc.taxableIncome` / `line15_taxableIncome`                        |
-| `topmostSubform[0].Page2[0].f2_02[0]`     | 16   | Tax                                        | `calc.tax.totalTax` / `line16_tax`                                   |
-| `topmostSubform[0].Page2[0].f2_04[0]`     | 18   | Add lines 16 + 17                          | same as 16 when no Sch 2 line 3                                      |
-| `topmostSubform[0].Page2[0].f2_05[0]`     | 19   | Child tax credit / other dependents credit | `calc.credits.childTaxCredit.nonrefundable` / `line19_ctcNonrefundable` |
-| `topmostSubform[0].Page2[0].f2_06[0]`     | 20   | Schedule 3 line 8 (e.g. FTC)               | `calc.credits.schedule3` / `line20_schedule3`                        |
-| `topmostSubform[0].Page2[0].f2_07[0]`     | 21   | Line 19 + 20                               | computed                                                             |
-| `topmostSubform[0].Page2[0].f2_08[0]`     | 22   | Line 18 minus 21                           | `calc.totalTax` / `line24_totalTax` (before other taxes)             |
-| `topmostSubform[0].Page2[0].f2_10[0]`     | 24   | Total tax                                  | `calc.totalTax` / `line24_totalTax`                                  |
+| PDF Field                                 | Line | Description                                | JSON key                 |
+|-------------------------------------------|------|--------------------------------------------|--------------------------|
+| `topmostSubform[0].Page2[0].f2_01[0]`     | 11b  | AGI (restated from 11a)                    | `lines.11b` / `lines.11` |
+| `topmostSubform[0].Page2[0].f2_02[0]`     | 12e  | Standard or itemized deduction             | `lines.12e` / `lines.12` |
+| `topmostSubform[0].Page2[0].f2_03[0]`     | 13a  | QBI (Form 8995/8995-A)                     | `lines.13a`              |
+| `topmostSubform[0].Page2[0].f2_04[0]`     | 13b  | Additional deductions (Sch 1-A)            | `lines.13b`              |
+| `topmostSubform[0].Page2[0].f2_05[0]`     | 14   | Add lines 12e + 13a + 13b                  | `lines.14`               |
+| `topmostSubform[0].Page2[0].f2_06[0]`     | 15   | Taxable income                             | `lines.15`               |
+| `topmostSubform[0].Page2[0].f2_08[0]`     | 16   | Tax                                        | `lines.16`               |
+| `topmostSubform[0].Page2[0].f2_09[0]`     | 17   | Sch 2 line 3                               | `lines.17`               |
+| `topmostSubform[0].Page2[0].f2_10[0]`     | 18   | Add 16 + 17                                | `lines.18`               |
+| `topmostSubform[0].Page2[0].f2_11[0]`     | 19   | Child tax credit / ODC                     | `lines.19`               |
+| `topmostSubform[0].Page2[0].f2_12[0]`     | 20   | Sch 3 line 8                               | `lines.20`               |
+| `topmostSubform[0].Page2[0].f2_13[0]`     | 21   | Line 19 + 20                               | `lines.21`               |
+| `topmostSubform[0].Page2[0].f2_14[0]`     | 22   | Line 18 − line 21                          | `lines.22`               |
+| `topmostSubform[0].Page2[0].f2_15[0]`     | 23   | Other taxes (Sch 2 line 21)                | `lines.23`               |
+| `topmostSubform[0].Page2[0].f2_16[0]`     | 24   | Total tax                                  | `lines.24`               |
 
 ### Payments
 
-| PDF Field                                 | Line | Description                        | JSON Path                                                        |
-|-------------------------------------------|------|------------------------------------|------------------------------------------------------------------|
-| `topmostSubform[0].Page2[0].f2_11[0]`     | 25a  | Federal tax withheld from W-2      | `calc.payments.federalWithheld` / `line25a_w2Withheld`           |
-| `topmostSubform[0].Page2[0].f2_12[0]`     | 25b  | Federal tax withheld from 1099s    | `calc.payments.withheld1099` / `line25b_1099Withheld`            |
-| `topmostSubform[0].Page2[0].f2_14[0]`     | 25d  | Total withholding (25a+25b+25c)    | computed                                                         |
-| `topmostSubform[0].Page2[0].f2_16[0]`     | 27   | Earned income credit (EIC)         | `calc.payments.earnedIncomeCredit` / `line27_eic`                |
-| `topmostSubform[0].Page2[0].f2_19[0]`     | 28   | Additional child tax credit        | `calc.payments.additionalChildTaxCredit` / `line28_actc`         |
-| `topmostSubform[0].Page2[0].f2_23[0]`     | 32   | Sum of refundable credits          | computed                                                         |
-| `topmostSubform[0].Page2[0].f2_24[0]`     | 33   | Total payments                     | `calc.payments.totalPayments` / `line33_totalPayments`           |
+| PDF Field                                 | Line | Description                        | JSON key      |
+|-------------------------------------------|------|------------------------------------|---------------|
+| `topmostSubform[0].Page2[0].f2_17[0]`     | 25a  | Federal tax withheld from W-2      | `lines.25a`   |
+| `topmostSubform[0].Page2[0].f2_18[0]`     | 25b  | Federal tax withheld from 1099s    | `lines.25b`   |
+| `topmostSubform[0].Page2[0].f2_19[0]`     | 25c  | Other withholding                  | `lines.25c`   |
+| `topmostSubform[0].Page2[0].f2_20[0]`     | 25d  | Total withholding (25a+25b+25c)    | `lines.25d`   |
+| `topmostSubform[0].Page2[0].f2_23[0]`     | 27   | Earned income credit (EIC)         | `lines.27`    |
+| `topmostSubform[0].Page2[0].f2_24[0]`     | 28   | Additional child tax credit (ACTC) | `lines.28`    |
+| `topmostSubform[0].Page2[0].f2_29[0]`     | 33   | Total payments                     | `lines.33`    |
 
 ### Refund / Amount Owed
 
-| PDF Field                                 | Line | Description       | JSON Path                                                 |
-|-------------------------------------------|------|-------------------|-----------------------------------------------------------|
-| `topmostSubform[0].Page2[0].f2_25[0]`     | 34   | Overpaid amount   | `calc.refundOrOwed.amount` (if `type == "refund"`)        |
-| `topmostSubform[0].Page2[0].f2_26[0]`     | 35a  | Refunded to you   | same as above                                             |
-| `topmostSubform[0].Page2[0].f2_29[0]`     | 37   | Amount you owe    | `calc.refundOrOwed.amount` (if `type == "owed"`)          |
+| PDF Field                                 | Line | Description        | JSON key                      |
+|-------------------------------------------|------|--------------------|-------------------------------|
+| `topmostSubform[0].Page2[0].f2_30[0]`     | 34   | Overpaid amount    | `lines.34` (refund)           |
+| `topmostSubform[0].Page2[0].f2_31[0]`     | 35a  | Refunded to you    | `lines.35a` / `lines.34`      |
+| `topmostSubform[0].Page2[0].f2_32[0]`     | 35b  | Routing number     | `profile.other.directDeposit` |
+| `topmostSubform[0].Page2[0].f2_33[0]`     | 35d  | Account number     | `profile.other.directDeposit` |
+| `topmostSubform[0].Page2[0].f2_35[0]`     | 37   | Amount you owe     | `lines.37`                    |
 
 ---
 
