@@ -1,7 +1,7 @@
 {
   "name": "super-tax-agent",
   "description": "AI tax filing assistant — interactive interview, document import (W2/1099), federal tax calculation, and mail-ready IRS Form 1040 PDF generation. Includes domain knowledge for RSU, rental property, crypto, and tax-loss harvesting. Self-evolving through community contributions. Self-prep use only; not tax or legal advice.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Fangyi Chen",
     "email": "fangyic@alumni.cmu.edu"
